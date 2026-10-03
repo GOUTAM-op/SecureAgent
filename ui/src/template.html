@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SecureAgent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+/*__CSS__*/
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="#" aria-label="SecureAgent">
+    <svg viewBox="0 0 32 32" aria-hidden="true">
+      <path d="M16 2.5 5 6.6v8.2c0 6.6 4.6 11.4 11 14.7 6.4-3.3 11-8.1 11-14.7V6.6z" fill="none" stroke="var(--text)" stroke-width="1.8" stroke-linejoin="round"/>
+      <circle cx="16" cy="15" r="3" fill="var(--clear)"/>
+      <circle cx="10.5" cy="11" r="1.6" fill="var(--active)"/><circle cx="21.5" cy="11" r="1.6" fill="var(--active)"/>
+      <circle cx="11.5" cy="20.5" r="1.6" fill="var(--hold)"/><circle cx="20.5" cy="20.5" r="1.6" fill="var(--deny)"/>
+      <path d="M10.5 11 16 15l5.5-4M11.5 20.5 16 15l4.5 5.5" stroke="var(--line-2)" stroke-width="1.2" fill="none"/>
+    </svg>
+    <span class="brand-name">SecureAgent</span>
+    <span class="brand-tag">Permission-aware multi-agent AI</span>
+  </a>
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button class="tab" role="tab" data-tab="console" aria-selected="true">Console</button>
+    <button class="tab" role="tab" data-tab="policy" aria-selected="false">Policy</button>
+    <button class="tab" role="tab" data-tab="bench" aria-selected="false">Benchmark</button>
+  </nav>
+  <button id="themeBtn" class="icon-btn" aria-label="Switch light and dark theme" title="Switch theme">
+    <svg class="ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/></svg>
+  </button>
+</header>
+
+<main class="wrap">
+
+  <!-- ============================================================ console -->
+  <section id="view-console">
+    <div class="posture" id="posture" role="group" aria-label="Security configuration"></div>
+
+    <div class="console">
+      <aside class="panel col-left" aria-label="Scenario library">
+        <div class="panel-head"><h2>Scenarios</h2><span class="sub">28 scripted tasks</span></div>
+        <div class="lib-tools">
+          <input id="libSearch" class="field" type="search" placeholder="Search scenarios" aria-label="Search scenarios">
+          <div class="lib-filter" id="libFilter"></div>
+        </div>
+        <div class="lib-list" id="libList"></div>
+      </aside>
+
+      <div class="stack col-center">
+        <section class="panel composer" aria-label="Task">
+          <div class="panel-head"><h2>Task</h2><span class="sub" id="taskSub"></span></div>
+          <div class="panel-body">
+            <div class="row">
+              <label class="lbl">Acting as</label>
+              <div class="seg" id="roleSeg" role="group" aria-label="User role"></div>
+            </div>
+            <textarea id="prompt" class="field" rows="2" placeholder="Describe what the agents should do, for example: Pay vendor invoice $4,800" aria-label="Task prompt"></textarea>
+            <div class="ctx" id="ctx" hidden><b>Retrieved content the research agent will read (untrusted)</b><q id="ctxText"></q></div>
+            <div class="row" style="margin-top:14px">
+              <button class="btn primary" id="runBtn">Run task</button>
+              <button class="btn" id="resetBtn">Reset</button>
+              <label class="toggle grow"><input type="checkbox" id="fastChk"> Fast-forward animation</label>
+            </div>
+            <div class="meta" id="taskMeta"></div>
+          </div>
+        </section>
+
+        <section class="panel" aria-label="Orchestrator">
+          <div class="panel-head"><h2>Orchestrator</h2><div class="legend"><span><i></i>Idle</span><span class="a"><i></i>Working</span><span class="d"><i></i>Passed</span><span class="b"><i></i>Stopped</span></div></div>
+          <div class="graph-body"><svg id="graph" class="graph" viewBox="0 0 860 385" role="img" aria-label="Orchestrator coordinating five agents and a human reviewer"></svg></div>
+        </section>
+
+        <section class="panel" aria-label="Execution plan">
+          <div class="panel-head"><h2>Execution plan</h2><span id="planBadge"></span></div>
+          <div class="panel-body" id="planBody"></div>
+        </section>
+      </div>
+
+      <aside class="panel audit col-right" aria-label="Audit trail">
+        <div class="panel-head"><h2>Audit trail</h2><span class="sub">Each entry is chained to the one before</span></div>
+        <div class="audit-tools">
+          <button class="btn sm" id="verifyBtn">Verify chain</button>
+          <button class="btn sm" id="tamperBtn">Simulate tampering</button>
+          <button class="btn sm" id="copyBtn">Copy JSON</button>
+        </div>
+        <div class="log" id="log" aria-live="polite"></div>
+        <div class="audit-foot"><span id="auditCount">0 entries</span><span id="chainState"></span></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- ============================================================= policy -->
+  <section id="view-policy" hidden>
+    <div class="view-head">
+      <div>
+        <h1>Who can call what</h1>
+        <p>Every tool needs one permission. Click a cell to grant or revoke it, then run the console or the benchmark to see what changes.</p>
+      </div>
+      <button class="btn" id="resetPolicy">Restore defaults</button>
+    </div>
+    <div class="policy-grid">
+      <section class="panel">
+        <div class="panel-head"><h2>Role permissions</h2><span class="sub" id="policyNote"></span></div>
+        <div class="tbl-wrap"><table class="matrix" id="matrix"></table></div>
+      </section>
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-head"><h2>Action validation</h2></div>
+          <div class="panel-body" id="rules"></div>
+        </section>
+        <section class="panel">
+          <div class="panel-head"><h2>Injection signatures</h2></div>
+          <div class="panel-body">
+            <p style="color:var(--muted);font-size:13.5px">The security agent scans the prompt and everything the research agent retrieves. A single match quarantines the whole plan before any step runs.</p>
+            <div class="sig" id="sigs"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================ benchmark -->
+  <section id="view-bench" hidden>
+    <div class="view-head">
+      <div>
+        <h1>Three configurations, 28 tasks</h1>
+        <p>Every scenario runs through each configuration: 16 legitimate tasks and 12 attacks, including hidden instructions in retrieved documents and requests that look entirely ordinary.</p>
+      </div>
+      <div class="bench-run"><span class="prog" id="benchProg"></span><button class="btn primary" id="benchBtn">Run benchmark</button></div>
+    </div>
+    <div class="legend" style="padding:0 2px 12px"><span class="c-unrestricted"><i style="border-color:var(--deny);background:var(--deny)"></i>Unrestricted</span><span><i style="border-color:var(--hold);background:var(--hold)"></i>RBAC-protected</span><span><i style="border-color:var(--clear);background:var(--clear)"></i>RBAC + human approval</span></div>
+    <div class="metrics" id="metrics"></div>
+    <section class="panel take" id="take" style="margin-top:12px" hidden></section>
+    <section class="panel results" style="margin-top:12px">
+      <div class="panel-head"><h2>What happened to each task</h2><div class="lib-filter" id="resFilter"></div></div>
+      <div class="tbl-wrap"><table id="results"></table></div>
+      <p class="note">Simulated benchmark. Scripted plans stand in for LLM planner output so runs are deterministic, tools are stubbed, and the reviewer follows a fixed script: it rejects harmful requests except one convincing invoice fraud, and over-cautiously declines one legitimate bulk delete. The numbers demonstrate the harness and the trade-offs between layers. They are not a measurement of any production system.</p>
+    </section>
+  </section>
+</main>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+/*__ENGINE__*/
+</script>
+<script>
+/*__APP__*/
+</script>
+</body>
+</html>
